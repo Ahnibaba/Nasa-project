@@ -1,17 +1,16 @@
-const { getAllLaunches, addNewLaunch, existsLaunchWithId, abortLaunchById } = require("../../models/launchesModel")
+const { getAllLaunches, existsLaunchWithId, abortLaunchById, scheduleNewLaunch } = require("../../models/launchesModel")
+const { getPagination } = require("../../services/query")
 
-function httpGetAllLaunches(req, res) {
-
-  return res.status(200).json({ success: true, launches: getAllLaunches() })
+async function httpGetAllLaunches(req, res) {
+  
+  const { skip, limit } = getPagination(req.query)
+  const launches = await getAllLaunches(skip, limit)
+  return res.status(200).json({ success: true, launches })
 
 }
-const httpAddNewLaunch = (req, res) => {
+async function httpAddNewLaunch (req, res) {
   try {
-    const launch = req.body
-
-    
-   
-    
+    const launch = req.body 
 
     if (!launch.mission || !launch.rocket || !launch.launchDate || !launch.target) {
       return res.status(400).json({ success: false, error: "Missing required launch property" })
@@ -24,7 +23,9 @@ const httpAddNewLaunch = (req, res) => {
       return res.status(400).json({ success: false, error: "Invalid launch date" })
     }
 
-    addNewLaunch(launch)
+    await scheduleNewLaunch(launch)
+    console.log(launch);
+    
     return res.status(201).json({ success: true, launch })
   } catch (err) {
     console.log("Am here and error: " + err);
@@ -32,14 +33,20 @@ const httpAddNewLaunch = (req, res) => {
   }
 }
 
-const httpAbortLaunch = (req, res) => {
+async function httpAbortLaunch (req, res) {
    const launchId = Number(req.params.id)
 
-   if(!existsLaunchWithId(launchId)) {
+   const existsLaunch = existsLaunchWithId(launchId)
+   if(!existsLaunch) {
       return res.status(404).json({ success: false, error: "Launch not found" })
    }
 
-   const aborted = abortLaunchById(launchId)
+   const aborted = await abortLaunchById(launchId)
+   if (!aborted) {
+    return res.status(400).json({ success: false, error: "Launch not aborted" })
+   }
+   console.log(aborted);
+   
    return res.status(200).json({ success: true, aborted })
 
 

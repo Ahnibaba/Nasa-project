@@ -3,7 +3,9 @@ const path = require("path")
 const { parse } = require("csv-parse")
 
 
-const habitablePlanets = []
+const planetModel = require("./planetsMongo")
+
+
 
 const isHabitablePlanet = (planet) => {
     return planet["koi_disposition"] === "CONFIRMED"
@@ -23,16 +25,16 @@ console.log(result)
 */
 
 function loadPlanetsData() {
-    return new Promise((resolve, reject) => {
+    return new Promise ((resolve, reject) => {
         fs.createReadStream(path.join(__dirname, "..", "..", "data", "kepler_data.csv"))
             .pipe(parse({
                 comment: "#",
                 columns: true,
             }))
 
-            .on("data", (data) => {
+            .on("data", async (data) => {
                 if (isHabitablePlanet(data)) {
-                    habitablePlanets.push(data)
+                   savePlanet(data);
                 }
             })
             .on("error", (err) => {
@@ -40,15 +42,34 @@ function loadPlanetsData() {
                 reject(err)
 
             })
-            .on("end", () => {
-                console.log(`${habitablePlanets.length} habitable planets found`);
+            .on("end", async () => {
+                const countPlanetFound = (await getAllPlanets()).length
+                console.log(`${countPlanetFound} habitable planets found`);
                 resolve()
             })
     })
 }
 
-function getAllPlanets () {
-   return habitablePlanets 
+async function getAllPlanets () {
+   return await planetModel.find({}, {
+    "_id": 0, "__v": 0
+   })
+}
+
+async function savePlanet (planet) {
+    try {
+        await planetModel.updateOne({
+            keplerName: planet.kepler_name
+        }, {
+            keplerName: planet.kepler_name
+        }, {
+            upsert: true
+        })
+        
+    } catch (err) {
+       console.error(`Could not save the planet ${err}`);
+       
+    }
 }
 
 
@@ -59,13 +80,3 @@ module.exports = {
 
 
 
-
-
-// 'Kepler-1652 b',
-// 'Kepler-1410 b',
-// 'Kepler-296 f',
-// 'Kepler-442 b',
-// 'Kepler-296 e',
-// 'Kepler-1649 b',
-// 'Kepler-62 f',
-// 'Kepler-452 b' 

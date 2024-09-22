@@ -1,8 +1,9 @@
 const { getAllPlanets } = require("../../models/planetsModel")
 
-function httpGetAllPlanets (req, res) {
+
+async function httpGetAllPlanets (req, res) {
     try {
-        return res.status(200).json({ success: true, planets: getAllPlanets() })
+        return res.status(200).json({ success: true, planets: await getAllPlanets() })
     } catch (err) {
        return res.json({ success: false, error: err })
     }

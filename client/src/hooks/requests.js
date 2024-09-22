@@ -1,6 +1,6 @@
 //import axios from "axios"
 
-const backendUrl = "http://localhost:4000"
+const backendUrl = "http://localhost:4000/v1"
 
 
 // Load planets and return as JSON.
