@@ -20,7 +20,7 @@ async function httpAddNewLaunch (req, res) {
     
     if (isNaN(launch.launchDate)) {
   
-      return res.status(400).json({ success: false, error: "Invalid launch date" })
+     
     }
 
     await scheduleNewLaunch(launch)

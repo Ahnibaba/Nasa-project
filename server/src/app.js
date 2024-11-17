@@ -5,8 +5,7 @@ const morgan = require("morgan")
 
 const api = require("./routes/api")
 
-const planetsRouter = require("./routes/planets/planetsRouter")
-const launchesRouter = require("./routes/launches/launchesRouter")
+
 
 const app = express()
 
