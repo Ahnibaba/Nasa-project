@@ -8,6 +8,7 @@ jobs:
   build:
     env:
       CI: true
+      MONGO_URL: ${{secrets.MONGO_URL}}
     strategy:
       matrix:
         node-version: [14.x, 16.x, 18.x]  
