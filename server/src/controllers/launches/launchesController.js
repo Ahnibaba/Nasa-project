@@ -27,7 +27,6 @@ async function httpAddNewLaunch (req, res) {
     
     return res.status(201).json({ success: true, launch })
   } catch (err) {
-    console.log("Am here and error: " + err);
     return res.status(500).json({ success: false, error: err })
   }
 }
